@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Web.Mvc;
+
 
 namespace Widgets40.Controllers
 {
@@ -59,7 +59,7 @@ namespace Widgets40.Controllers
             //     Dictionary<string, string> dictdropdownlist = (from x in Grp select x).ToDictionary(x => x.val1,x => x.val1);
 
 
-            DropDownList ddl = new DropDownList();
+            var ddl = ;
             ddl.ID = "newDDL";
 
             ddl.Items.Add(new ListItem("1", "Christmas2019"));
