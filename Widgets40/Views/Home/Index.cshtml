@@ -1,0 +1,434 @@
+﻿<style>
+    [type="date"] {
+        background: #fff url(https://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/calendar_2.png) 97% 50% no-repeat;
+    }
+
+        [type="date"]::-webkit-inner-spin-button {
+            display: none;
+        }
+
+        [type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+        }
+    /* custom styles */
+    body {
+        padding: 4em;
+        background: #e5e5e5;
+        font: 13px/1.4 Geneva, 'Lucida Sans', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
+    }
+
+    label {
+        display: block;
+    }
+
+    input {
+        border: 1px solid #c4c4c4;
+        border-radius: 5px;
+        background-color: #fff;
+        padding: 3px 5px;
+        box-shadow: inset 0 3px 6px rgba(0,0,0,0.1);
+        width: 190px;
+    }
+</style>
+<link href="@Url.Content("~/Content/Spinner.css")" rel="stylesheet" type="text/css" />
+<div class="container">
+    <div id="mySpinner" class="ring" displ>
+        Loading
+        <span></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="form-group">
+        <label class="col-md-2 control-label">Season</label>
+        <div class="col-md-10">
+            @Html.DropDownList("Season", new SelectList(ViewBag.DropDown, "Value", "Text"))
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dropdown">
+                <p></p>
+                <p></p>
+                <p></p>
+            </div>
+        </div>
+    </div>
+    @*<div class="kpipage-title">
+
+            @Html.DropDownList("ddlEvent", new SelectList(ViewBag.Events, "Id", "EventText", 1), new { @class = "mycombo", style = "min-width: 250px;" })
+        </div>
+        <table>
+            <tr>
+                <td style="min-width:90px"><label>Search for</label></td>
+                <td style="min-width:30px"><input class="new-class" type="text" id="search" /></td>
+                <td><button class="btn btn-primary dropdown-toggle" id="loadusers" type="button">Get Seasonal Groups</button></td>
+                <td style="min-width:20px"></td>
+                <td style="min-width:20px"><label>Seasonal Group</label></td>
+
+                <td><input class="new-class" type="text" id="name" /></td>
+                <td><button class="btn btn-primary dropdown-toggle" id="AddUser" type="button">Add Seasonal Groups</button></td>
+            </tr>
+        </table>*@
+    @*&nbsp<select id="prodarea2"></select>&nbsp*@
+    <table class="table table-condensed" id="Grid3"></table>
+    <button name="Return" class="btn btn-primary dropdown-toggle mycancel " id="returnbutt" type="button">Return</button>
+</div>
+<div style="display:none ">
+    <select id='myDropDown'></select>
+</div>
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+<script type="text/javascript">
+
+    var collection = @Html.Raw(Json.Encode(@ViewBag.custgroupdropdown));
+    var members = collection;
+    var theEventId = 1;
+   // for (var g = 0; g < collection.length; g++) {
+   //     debugger;
+   //     members.push(collection[g]);
+   // }
+   // function MouseRollover(MyImage) {
+   //     MyImage.src = "/content/hoverover.PNG";
+  //  }
+  //  function MouseOut(MyImage) {
+   //     MyImage.src = "";
+  //  }
+
+    $(document).keypress(function(e) {
+        // Return key hit
+
+        if(e.which == 13) {
+            var parm1 = "@ViewBag.search";
+            var parm2 = "@ViewBag.eventid";
+            var myStr = "@Url.Action("AddSeasonalGroup", "Home", new { search = "xxxxx", eventid = "yy" })";
+            myStr = myStr.replace("xxxxx", parm1);
+            myStr = myStr.replace("yy", parm2);
+            var myChk = '"location.href=\'' +  myStr + '\'"';
+            window.location.href = myStr;
+        }
+    });
+
+    $(document).ready(function () {
+
+            $('#mySpinner').css('display', 'inline-block');
+            $('#mySpinner').show();
+            var myChrr =  $('#mySpinner');
+            do_ajax3('');
+    });
+    function do_ajax3(xxx) {
+
+        //dropdown
+        for (var j = 0; j < members.length; ++j) {
+            if (  members[j] != null) {
+                //   console.log("Item #" + j + " " + members[j].SeasonalGroupText);
+                var exists = false;
+                $("#myDropDown  > option").each(function() {
+                    var text = $(this).text();
+                    if (text == members[j].SeasonalGroupText) {
+                        exists = true;
+                    }
+                });
+                if (exists == false) {
+                    $('#myDropDown' ).append("<option value = " + members[j].Id + " >" + members[j].SeasonalGroupText + "</option>");
+                }
+                else {
+
+                }
+            }
+        }
+        var seagrp = '@ViewBag.seagrp';
+        var search = '@ViewBag.search';
+        var eventid = "@ViewBag.eventid";
+        if (eventid == '') {
+            eventid = 0;
+        }
+
+        $('#mySpinner').css('display', 'inline-block');
+        //  var event =  $("#ddlEvent").val();
+        var mydata = {
+            seasongroup: seagrp, EventId: eventid
+        }
+
+
+
+        var j1 = $.ajax({
+            url: "@Url.Action("GetSeasonalGroupProducts", "Home")",
+            type: "GET",
+            cache: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: mydata,
+            cache: false,
+            async: true,
+            success: function (data) {
+
+                var json_parsed = JSON.parse(data);
+                var row;
+                $("#Grid3").empty();
+                var items = json_parsed;
+                $('#Grid3').append(row);
+                // data
+                /// var myChange = 'onChange="if (!confirm(\' Are you sure you want to do this?\') )"'
+                //    var backcolor;
+                //    var p_backcolor;
+                //    var b_backcolor;
+                //    var quotient;
+                //    var curr_prod_area = '';
+                //    var curr_buyer_area = '';
+                //    var curr_sub_code = '';
+                row = '<div  class="table-responsive"></br></br><table class="table table-bordered table-striped table-hover"><tbody>';
+                row =  row + '<tr><td  colspan="11" style="text-align: center;" bgcolor=' + 'white' + '><b>Data Administration</td></tr><tr id="gridheader">';
+                //      row = row + '<th style="min-width:25px color:white" bgcolor=' + '#F5B7B1' + '><font color="#fff">&nbsp&nbsp' + '<b>Seasonal&nbspGroup' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:150px" bgcolor=' + 'white' + '>&nbsp&nbsp' + '<b>Junior&nbsp&nbspArea' + '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>Sub Group' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>Sub Group Description' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>Season' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>TPND' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp&nbsp' + '<b>TPNB' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:300px" bgcolor=' + 'white' + '>&nbsp' + '<b>ProductDescription' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:150px" bgcolor=' + 'white' + '>&nbsp&nbsp' + '<b>TotalBuy' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:150px" bgcolor=' + 'white' + '>&nbsp&nbsp' + '<b>LY TotalBuy' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:25px color:white" bgcolor=' + '#F5B7B1' + '><font color="#fff">&nbsp&nbsp' + '<b>Seasonal&nbspGroup' + '&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:25px color:white" bgcolor=' + '#F5B7B1' + '><font color="#fff"></th>';
+
+                row = row + '</tr>';
+                $('#Grid3').append(row);
+                var resolvelink = '@Url.Action("tpnblyorphan", "Archive")';
+
+
+                var jsonstr = JSON.parse(data);
+                var jsonobj = JSON.stringify(data);
+
+                var searchtext = $("#search").val();
+
+                for (var i = 0; i < items.length; ++i) {           // lines
+                    row = '<tr>';
+                    //      row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].CustomerGroup + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].JuniorAreaId + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].SubgroupId + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].ProductSubgroupCodeDescription + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].seasonname + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].TPNB + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].TPND + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].ProductDescription + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].TotalBuy + '&nbsp&nbsp</td>';
+                    //row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].LYTotalBuy + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px" bgcolor=' + 'white' + '><a href=""  data-tpnd="' + items[i].TPND + '"  data-tpnb="' + items[i].TPNB + '" + data-seas="' + items[i].SeasonDescription +  '"onclick="LYTotalDetails(this);return false;" class="products" title="DataAdmin">'  + items[i].LYTotalBuy +       '</a></td>';
+                    //  row = row + "<td style='max-width:30px'><button  data-descr='" + items[i].SeasonalGroupText + "'   class='myChk btn btn-primary dropdown-toggle' style='background-color:red' name='delete" + items[i].Id + "'  value='8'  type='button'>Delete</button></td>";
+                    row = row + "<td><select id='ddl2"  +  items[i].TPND + items[i].SeasonDescription  + "'></select></td>";
+                    row = row + '<td><button name="bigbutt' + items[i].TPND  + items[i].SeasonDescription + '"  data-tpnd="' + items[i].TPND + '"  data-tpnb="' + items[i].TPNB + '" + data-seas="' + items[i].SeasonDescription + '"     class="btn btn-primary dropdown-toggle myadd2" id="bigbutt' + items[i].TPND  + items[i].SeasonDescription + '" type="button">Update</button></td>';
+                    row=row + '</tr>' ;
+                    $('#Grid3').append(row);
+                    // create dropdown was here!
+
+                    var myckk = "#ddl2" +  items[i].TPND + items[i].SeasonDescription;
+                    $("#ddl2" +  items[i].TPND + items[i].SeasonDescription).html($('#Season').html());
+                    var myId = items[i].SeasonalGroupId;
+                    $("#ddl2" +  items[i].TPND  + items[i].SeasonDescription +" option").each(function() {
+                        //   console.log("$(this).val()" + i + " " + $(this).val());
+
+                        if (myId  !== 0){
+
+                            if ($(this).val() == myId ){
+                                $(this).attr('selected', 'selected');
+
+                            }
+
+                        } else  if($(this).text() == items[i].CustomerGroup) {
+                            $(this).attr('selected', 'selected');
+                        }
+                    });
+                    $('#bigbutt' +  items[i].TPND + items[i].SeasonDescription).attr('onClick', 'updateProduct(this);');
+                }
+                //    row =  '<td><button name ="Return" class="btn btn-primary dropdown-toggle mycancel " id="updatecancel" onclick="' +  myChk +'" type="button">Return</button></td>';
+                row= '</table>' ;
+
+                var parm1 = "@ViewBag.search";
+                var parm2 = "@ViewBag.eventid";
+                if (parm2 == '') {
+                    parm2 = 0;
+                }
+                var myStr = "@Url.Action("AddSeasonalGroup", "Home", new { search = "xxxxx", eventid = "yy" })";
+                myStr = myStr.replace("xxxxx", parm1);
+                myStr = myStr.replace("yy", parm2);
+                var myChk = '"location.href=\'' +  myStr + '\'"';
+                $('#returnbutt').attr('onClick',  'window.location.href = \' ' + myStr + ' \' ');
+                //   $('.mycancel').attr('onClick',  'window.location.href = \' @Url.Action("SeasonalGroup", "Home")?searchstr={{search}}       \'');
+
+                $('.ring').hide();
+                $(".tooltip").tooltip();
+            }, error: function (xhr) {
+                debugger;
+                $('.ring').hide();
+                alert('Request Status: ' + xhr.status + ' Status Text (b): ' + xhr.statusText + ' ' + xhr.responseText);
+            }
+        });
+    }
+    function LYTotalDetails(e) {
+
+        //    e.preventDefault();
+        var myThis = e;
+        var tpnb;
+        var tpnd;
+        var seas;
+
+        for (var i = 0; i < e.attributes.length; ++i) {
+
+            if ( e.attributes[i].name == 'data-tpnb') {
+                tpnb = e.attributes[i].value;
+            }
+            if ( e.attributes[i].name == 'data-tpnd') {
+                tpnd = e.attributes[i].value;
+            }
+            if ( e.attributes[i].name == 'data-seas') {
+                seas = e.attributes[i].value;
+            }
+        }
+        var payload = {
+            topseason: seas,   tpnb: tpnb, tpnd: tpnd
+        };
+
+        $.ajax({
+            url: "@Url.Action("getTPNBLYbuys", "Home")",
+            type: "GET",
+            cache: false,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: payload,
+            async: false,
+            success: function (data) {
+                if (data.length > 0)    {
+
+                    //   var mydata5 = { id: Xid, name: deletee};
+                    //  var tester = ConfirmDialog();
+                    var unobs = JSON.parse(data);
+                    var unobs2 = JSON.stringify(data);
+                    DisplayDialog(unobs[0]);
+                    return false;
+                }
+                else {
+                    alert("Can't Delete: still products attached!")
+                }
+            },
+            error: function (xhr) {
+                alert('Request Status4: ' + xhr.status + ' Status Text (b): ' + xhr.statusText + ' ' + xhr.responseText);
+            }
+        });
+    }
+
+    function DisplayDialog(item) {
+
+        var tpnb = item.tpnb;
+        var expressbuy = item.expressBuy;
+        var exportvolume = item.exportvolume;
+        var largestorebuy = item.largestorebuy;
+        var samplingvolume = item.samplingvolume;
+        var totalbuy = item.totalbuy;
+        var orphanId = item.orphanid;
+
+        $('<div></div>').appendTo('body')
+            .html('<div><h6>' + 'This Season: ' + ' <label id="d_tpnb"  class="form-control validate">' + item.thisseason + '</label>'
+                  + '<br/>TPNB<input type="text" id="d_express" value= "'  + tpnb +  '" class="form-control validate">'
+                   + '<br/>Last Season<label id="d_express"  class="form-control validate">'  + item.lastseason +  '</label>'
+                    + '<br/>LYTPNB<input type="text" id="d_express" value= "'  + item.lytpnb +  '" class="form-control validate">'
+              + '<br/>Express Buy<input type="text" id="d_expressbuy" value= "' + expressbuy  + '" class="form-control validate">'
+              + '<br/>Export Volume<input type="text" id="d_export" value= "' + exportvolume  + '" class="form-control validate">'
+                + '<br/>Sampling Volume<input type="text" id="d_sample" value= "' + samplingvolume  + '" class="form-control validate">'
+              + '<br/>Large Store Buy<input type="text" id="d_large" value= "' + largestorebuy  + '" class="form-control validate">'
+            + '<br/>Total Buy<label id="d_total" class="form-control validate">' + totalbuy  + '</label>'
+            + '</h6></div>')
+            .dialog({
+                modal: true, title: 'Update LY Buys ', zIndex: 10000, autoOpen: true,
+                width: 'auto', resizable: false,
+                buttons: {
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    },
+                    Update: function () {
+                        item.ExpressBuy = $('#d_expressbuy').val();
+                        item.ExportVolume = $('#d_export').val();
+                        item.LargeStoreBuy = $('#d_large').val();
+                        item.SamplingVolume = $('#d_sample').val();
+                        CallbackUpdate(item);
+                        $(this).dialog("close");
+                    }
+                },
+                close: function (event, ui) {
+
+                    $(this).remove();
+                }
+            });
+        return false;
+   }
+
+    function CallbackUpdate(item) {
+        var id = item.orphanid;
+        var tpnd = item.tpnd;
+        //   var selseason  = @ViewBag.season;
+        var selseason = 0;
+        var expressbuy = item.ExpressBuy;
+        var largestorebuy = item.LargeStoreBuy;
+        var samplevolume = item.SamplingVolume;
+        var exportvolume = item.ExportVolume;
+        if (expressbuy === undefined)   {
+            expressbuy = 0;
+        }
+        if (largestorebuy === undefined)   {
+            largestorebuy = 0;
+        }
+        if (samplevolume === undefined)   {
+            samplevolume = 0;
+        }
+        if (exportvolume === undefined)   {
+            exportvolume = 0;
+        }
+
+        var tot = parseInt(expressbuy) + parseInt(largestorebuy) + parseInt(samplevolume) + parseInt(exportvolume);
+        if (isNaN(tot)) {
+            tot = 0;
+        }
+
+        $("#totbuy").text(tot);
+        var tpnb = item.tpnb;
+        // var tpnbly = item.lytpnb;
+        var tpnbly = 0;
+        if (tpnbly === undefined)
+        {
+            tpnbly = "0";
+        }
+        //    if (tpnbly == "" || selseason == "" || expressbuy == "" || largestorebuy == "" || samplevolume == "" || exportvolume == "") {
+        //        alert("non-numeric input");
+        //    }
+        var mydataLY = "";
+        if ((tot != 0) && tpnbly != 0) {
+            alert("input either buy totals or TPNBLY - not both!");
+        } else {
+            mydataLY = {
+                id: id,
+                tpnb: tpnb, tpnd: tpnd, tpnbly: tpnbly, season: selseason, expressbuy: expressbuy,
+                largestorebuy: largestorebuy, samplevolume: samplevolume, exportvolume: exportvolume
+            };
+            mydataLY =  "{ 'id': '" + id + "', 'tpnb': '" + tpnb + "', 'tpnd': '" + tpnd + "', 'tpnbly': '" + tpnbly + "', 'season': '" + selseason + "', 'expressbuy': '" + expressbuy + "', 'largestorebuy': '" + largestorebuy + "',  'samplevolume': '" + samplevolume + "', 'exportvolume': '" + exportvolume +  "'}";
+
+            $.ajax({
+                url: "@Url.Action("updateTPNBLYdetails", "Home")",
+                type: "POST",
+                cache: false,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: mydataLY,
+                async: false,
+                success: function (data) {
+                    window.location.href = '@Url.Action("seagrpproducts", "Archive")';
+                },
+                error: function (xhr) {
+                    alert('Request Status4: ' + xhr.status + ' Status Text (b): ' + xhr.statusText + ' ' + xhr.responseText);
+                }
+            });
+        }
+    }
+</script>
