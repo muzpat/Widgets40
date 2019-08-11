@@ -42,7 +42,11 @@
     <div class="form-group">
         <label class="col-md-2 control-label">Season</label>
         <div class="col-md-10">
-            @Html.DropDownList("Season", new SelectList(ViewBag.DropDown, "Value", "Text"))
+          @*@Html.DropDownList("Season", new SelectList(ViewBag.DropDown, "Value", "Text"))*@
+            <select>
+<option id="Season" value="1">Christmas 2019</option>
+<option value="2">Christmas 20120</option>
+            </select>
         </div>
     </div>
 </div>
@@ -80,11 +84,11 @@
     <select id='myDropDown'></select>
 </div>
 <link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
-<script src="~/Scripts/jquery-1.10.2.js"></script>
-<script src="~/Scripts/jquery-ui-1.12.1.js"></script>
-<script type="text/javascript">
 
-    var collection = @Html.Raw(Json.Encode(@ViewBag.custgroupdropdown));
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    
+    var collection = "";   // 
     var members = collection;
     var theEventId = 1;
    // for (var g = 0; g < collection.length; g++) {
@@ -98,29 +102,29 @@
    //     MyImage.src = "";
   //  }
 
-    $(document).keypress(function(e) {
-        // Return key hit
-
-        if(e.which == 13) {
-            var parm1 = "@ViewBag.search";
-            var parm2 = "@ViewBag.eventid";
-            var myStr = "@Url.Action("AddSeasonalGroup", "Home", new { search = "xxxxx", eventid = "yy" })";
-            myStr = myStr.replace("xxxxx", parm1);
-            myStr = myStr.replace("yy", parm2);
-            var myChk = '"location.href=\'' +  myStr + '\'"';
-            window.location.href = myStr;
-        }
-    });
+ //  $(document).keypress(function(e) {
+ //      // Return key hit
+ //
+ //      if(e.which == 13) {
+ //          var parm1 = "@ViewBag.search";
+ //          var parm2 = "@ViewBag.eventid";
+ //          var myStr = "@Url.Action("AddSeasonalGroup", "Home", new { search = "xxxxx", eventid = "yy" })";
+ //          myStr = myStr.replace("xxxxx", parm1);
+ //          myStr = myStr.replace("yy", parm2);
+ //          var myChk = '"location.href=\'' +  myStr + '\'"';
+ //          window.location.href = myStr;
+ //      }
+ //  });
 
     $(document).ready(function () {
-
+   
             $('#mySpinner').css('display', 'inline-block');
             $('#mySpinner').show();
             var myChrr =  $('#mySpinner');
             do_ajax3('');
     });
     function do_ajax3(xxx) {
-
+     
         //dropdown
         for (var j = 0; j < members.length; ++j) {
             if (  members[j] != null) {
@@ -165,7 +169,7 @@
             cache: false,
             async: true,
             success: function (data) {
-
+                 
                 var json_parsed = JSON.parse(data);
                 var row;
                 $("#Grid3").empty();
@@ -183,7 +187,7 @@
                 row = '<div  class="table-responsive"></br></br><table class="table table-bordered table-striped table-hover"><tbody>';
                 row =  row + '<tr><td  colspan="11" style="text-align: center;" bgcolor=' + 'white' + '><b>Data Administration</td></tr><tr id="gridheader">';
                 //      row = row + '<th style="min-width:25px color:white" bgcolor=' + '#F5B7B1' + '><font color="#fff">&nbsp&nbsp' + '<b>Seasonal&nbspGroup' + '&nbsp&nbsp</th>';
-                row = row + '<th style="min-width:150px" bgcolor=' + 'white' + '>&nbsp&nbsp' + '<b>Junior&nbsp&nbspArea' + '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</th>';
+                row = row + '<th style="min-width:150px" bgcolor=' + 'white' + '>&nbsp&nbsp' + '<b>Junior&nbsp&nbspArea' + '</th>';
                 row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>Sub Group' + '&nbsp&nbsp</th>';
                 row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>Sub Group Description' + '&nbsp&nbsp</th>';
                 row = row + '<th style="min-width:50px"  bgcolor=' + 'white' + '>&nbsp' + '<b>Season' + '&nbsp&nbsp</th>';
@@ -196,7 +200,8 @@
                 row = row + '<th style="min-width:25px color:white" bgcolor=' + '#F5B7B1' + '><font color="#fff"></th>';
 
                 row = row + '</tr>';
-                $('#Grid3').append(row);
+              
+            //    $('#Grid3').append(row);
                 var resolvelink = '@Url.Action("tpnblyorphan", "Archive")';
 
 
@@ -204,12 +209,12 @@
                 var jsonobj = JSON.stringify(data);
 
                 var searchtext = $("#search").val();
-
+               
                 for (var i = 0; i < items.length; ++i) {           // lines
-                    row = '<tr>';
+                    row = row + '<tr>';
                     //      row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].CustomerGroup + '&nbsp&nbsp</td>';
-                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].JuniorAreaId + '&nbsp&nbsp</td>';
-                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].SubgroupId + '&nbsp&nbsp</td>';
+                    row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].JuniorAreaId + '</td>';
+                    row = row + '<td style="">' + items[i].SubgroupId + '</td>';
                     row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].ProductSubgroupCodeDescription + '&nbsp&nbsp</td>';
                     row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].seasonname + '&nbsp&nbsp</td>';
                     row = row + '<td style="min-width:80px">&nbsp&nbsp' + items[i].TPNB + '&nbsp&nbsp</td>';
@@ -222,7 +227,7 @@
                     row = row + "<td><select id='ddl2"  +  items[i].TPND + items[i].SeasonDescription  + "'></select></td>";
                     row = row + '<td><button name="bigbutt' + items[i].TPND  + items[i].SeasonDescription + '"  data-tpnd="' + items[i].TPND + '"  data-tpnb="' + items[i].TPNB + '" + data-seas="' + items[i].SeasonDescription + '"     class="btn btn-primary dropdown-toggle myadd2" id="bigbutt' + items[i].TPND  + items[i].SeasonDescription + '" type="button">Update</button></td>';
                     row=row + '</tr>' ;
-                    $('#Grid3').append(row);
+               //     $('#Grid3').append(row);
                     // create dropdown was here!
 
                     var myckk = "#ddl2" +  items[i].TPND + items[i].SeasonDescription;
@@ -245,8 +250,8 @@
                     $('#bigbutt' +  items[i].TPND + items[i].SeasonDescription).attr('onClick', 'updateProduct(this);');
                 }
                 //    row =  '<td><button name ="Return" class="btn btn-primary dropdown-toggle mycancel " id="updatecancel" onclick="' +  myChk +'" type="button">Return</button></td>';
-                row= '</table>' ;
-
+                row = row + '</table>' ;
+                 $('#Grid3').append(row);
                 var parm1 = "@ViewBag.search";
                 var parm2 = "@ViewBag.eventid";
                 if (parm2 == '') {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+//using System.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -59,22 +60,22 @@ namespace Widgets40.Controllers
             //     Dictionary<string, string> dictdropdownlist = (from x in Grp select x).ToDictionary(x => x.val1,x => x.val1);
 
 
-            var ddl = ;
-            ddl.ID = "newDDL";
-
-            ddl.Items.Add(new ListItem("1", "Christmas2019"));
-            ddl.Items.Add(new ListItem("2", "Christmas2020"));
-
-            ViewBag.DropDown = new List<SelectListItem>{ new SelectListItem{
-                Text="Christmas2019",
-                Value = "2"
-            },
-            new SelectListItem{
-                Text="Christmas2020",
-                Value = "1"
-            }};
-
-            ViewBag.custgroupdropdown = ddl;
+         //  var ddl = ;
+         //  ddl.ID = "newDDL";
+         //
+         //  ddl.Items.Add(new ListItem("1", "Christmas2019"));
+         //  ddl.Items.Add(new ListItem("2", "Christmas2020"));
+         //
+         //  ViewBag.DropDown = new List<SelectListItem>{ new SelectListItem{
+         //      Text="Christmas2019",
+         //      Value = "2"
+         //  },
+         //  new SelectListItem{
+         //      Text="Christmas2020",
+         //      Value = "1"
+         //  }};
+         //
+         //  ViewBag.custgroupdropdown = ddl;
             return View();
         }
 
@@ -124,7 +125,7 @@ namespace Widgets40.Controllers
             tbl.Add(aReturn);
 
             string s = JsonConvert.SerializeObject(tbl);
-            return Json(s, JsonRequestBehavior.AllowGet);
+            return Json(s);
         }
 
         [HttpGet]
@@ -141,7 +142,7 @@ namespace Widgets40.Controllers
             aReturn.orphanId = "aaa";
             tbl.Add(aReturn);
             string s = JsonConvert.SerializeObject(tbl);
-            return Json(s, JsonRequestBehavior.AllowGet);
+            return Json(s);
 
         }
 
